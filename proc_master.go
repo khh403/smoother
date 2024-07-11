@@ -5,6 +5,10 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"encoding/hex"
+<<<<<<< HEAD
+=======
+	"errors"
+>>>>>>> develop
 	"fmt"
 	"io"
 	"log"
@@ -43,7 +47,11 @@ type master struct {
 
 // run 是主进程执行的方法，监听 USR2 信号，并一直在 fork loop 中死循环
 func (mp *master) run() error {
+<<<<<<< HEAD
 	mp.debugf("run")
+=======
+	mp.debugf("process master run")
+>>>>>>> develop
 	if err := mp.checkBinary(); err != nil {
 		return err
 	}
@@ -53,15 +61,31 @@ func (mp *master) run() error {
 			mp.Config.Fetcher = nil
 		}
 	}
+<<<<<<< HEAD
 	mp.setupSignalling()
 	if err := mp.retreiveFileDescriptors(); err != nil {
 		return err
 	}
+=======
+	// 设置 master 进程需要相应的信号处理函数
+	mp.setupSignalling()
+
+	if err := mp.retreiveFileDescriptors(); err != nil {
+		return err
+	}
+	mp.debugf("master process retrive file descriptors success, count: %d, detail: %+v",
+		len(mp.slaveExtraFiles), mp.slaveExtraFiles)
+
+>>>>>>> develop
 	if mp.Config.Fetcher != nil {
 		mp.printCheckUpdate = true
 		mp.fetch()
 		go mp.fetchLoop()
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
 	return mp.forkLoop()
 }
 
@@ -72,6 +96,10 @@ func (mp *master) checkBinary() error {
 		return fmt.Errorf("failed to find binary path (%s)", err)
 	}
 	mp.binPath = binPath
+<<<<<<< HEAD
+=======
+	mp.debugf("check bin path: %s", mp.binPath)
+>>>>>>> develop
 	if info, err := os.Stat(binPath); err != nil {
 		return fmt.Errorf("failed to stat binary (%s)", err)
 	} else if info.Size() == 0 {
@@ -102,6 +130,11 @@ func (mp *master) checkBinary() error {
 }
 
 func (mp *master) setupSignalling() {
+<<<<<<< HEAD
+=======
+	//process master 会接受所有系统的信号，并一一处理他们
+	//setup master process's signals
+>>>>>>> develop
 	//updater-forker comms
 	mp.restarted = make(chan bool)
 	mp.descriptorsReleased = make(chan bool)
@@ -117,7 +150,12 @@ func (mp *master) setupSignalling() {
 
 func (mp *master) handleSignal(s os.Signal) {
 	if s == mp.RestartSignal {
+<<<<<<< HEAD
 		//user initiated manual restart  USR2 信号
+=======
+		//user initiated manual restart
+		//这是用户手动给主进程发送的信号，一般默认为 USR2 信号，比如 kill -USR2 <master process id>
+>>>>>>> develop
 		go mp.triggerRestart()
 	} else if s.String() == "child exited" {
 		// will occur on every restart, ignore it
@@ -126,14 +164,22 @@ func (mp *master) handleSignal(s os.Signal) {
 	//to the master process that, the file
 	//descriptors have been released
 	if mp.awaitingUSR1 && s == SIGUSR1 {
+<<<<<<< HEAD
 		mp.debugf("signaled, sockets ready")
+=======
+		mp.debugf("SIGUSR1 signaled, sockets ready")
+>>>>>>> develop
 		mp.awaitingUSR1 = false
 		mp.descriptorsReleased <- true
 	} else
 	//while the slave process is running, proxy
 	//all signals through
 	if mp.slaveCmd != nil && mp.slaveCmd.Process != nil {
+<<<<<<< HEAD
 		mp.debugf("proxy signal (%s)", s)
+=======
+		//mp.debugf("proxy signal (%s)", s)
+>>>>>>> develop
 		mp.sendSignal(s)
 	} else
 	//otherwise if not running, kill on CTRL+c
@@ -159,7 +205,11 @@ func (mp *master) retreiveFileDescriptors() error {
 	for i, addr := range mp.Config.Addresses {
 		a, err := net.ResolveTCPAddr("tcp", addr)
 		if err != nil {
+<<<<<<< HEAD
 			return fmt.Errorf("Invalid address %s (%s)", addr, err)
+=======
+			return fmt.Errorf("invalid address %s (%s)", addr, err)
+>>>>>>> develop
 		}
 		l, err := net.ListenTCP("tcp", a)
 		if err != nil {
@@ -167,10 +217,17 @@ func (mp *master) retreiveFileDescriptors() error {
 		}
 		f, err := l.File()
 		if err != nil {
+<<<<<<< HEAD
 			return fmt.Errorf("Failed to retreive fd for: %s (%s)", addr, err)
 		}
 		if err := l.Close(); err != nil {
 			return fmt.Errorf("Failed to close listener for: %s (%s)", addr, err)
+=======
+			return fmt.Errorf("failed to retreive fd for: %s (%s)", addr, err)
+		}
+		if err := l.Close(); err != nil {
+			return fmt.Errorf("failed to close listener for: %s (%s)", addr, err)
+>>>>>>> develop
 		}
 		mp.slaveExtraFiles[i] = f
 	}
@@ -200,7 +257,11 @@ func (mp *master) fetch() {
 		return //skip if restarting
 	}
 	if mp.printCheckUpdate {
+<<<<<<< HEAD
 		mp.debugf("checking for updates...")
+=======
+		//mp.debugf("checking for updates...")
+>>>>>>> develop
 	}
 	reader, err := mp.Fetcher.Fetch()
 	if err != nil {
@@ -209,13 +270,21 @@ func (mp *master) fetch() {
 	}
 	if reader == nil {
 		if mp.printCheckUpdate {
+<<<<<<< HEAD
 			mp.debugf("no updates")
+=======
+			//mp.debugf("no updates")
+>>>>>>> develop
 		}
 		mp.printCheckUpdate = false
 		return //fetcher has explicitly said there are no updates
 	}
 	mp.printCheckUpdate = true
+<<<<<<< HEAD
 	mp.debugf("streaming update...")
+=======
+	//mp.debugf("streaming update...")
+>>>>>>> develop
 	//optional closer
 	if closer, ok := reader.(io.Closer); ok {
 		defer closer.Close()
@@ -241,7 +310,11 @@ func (mp *master) fetch() {
 	//compare hash
 	newHash := hash.Sum(nil)
 	if bytes.Equal(mp.binHash, newHash) {
+<<<<<<< HEAD
 		mp.debugf("hash match - skip")
+=======
+		//mp.debugf("hash match - skip")
+>>>>>>> develop
 		return
 	}
 	//copy permissions
@@ -268,7 +341,11 @@ func (mp *master) fetch() {
 			return
 		}
 	}
+<<<<<<< HEAD
 	//smoother sanity check, dont replace our good binary with a non-executable file
+=======
+	//smoother sanity check, do not replace our good binary with a non-executable file
+>>>>>>> develop
 	tokenIn := token()
 	cmd := exec.Command(tmpBinPath)
 	cmd.Env = append(os.Environ(), []string{envBinCheck + "=" + tokenIn}...)
@@ -309,15 +386,28 @@ func (mp *master) fetch() {
 }
 
 func (mp *master) triggerRestart() {
+<<<<<<< HEAD
 	if mp.restarting {
+=======
+	// 父进程响应用户 kill -USR2 重启信号
+	if mp.restarting {
+		// 如果已经完成重启动作，name就忽略
+>>>>>>> develop
 		mp.debugf("already graceful restarting")
 		return //skip
 	} else if mp.slaveCmd == nil || mp.restarting {
 		mp.debugf("no slave process")
 		return //skip
 	}
+<<<<<<< HEAD
 	mp.debugf("graceful restart triggered")
 	mp.restarting = true
+=======
+
+	mp.debugf("graceful restart triggered")
+	mp.restarting = true
+	// master 主进程执行 restart 动作后要等待子进程会发的 USR1 信号!!!
+>>>>>>> develop
 	mp.awaitingUSR1 = true
 	mp.signalledAt = time.Now()
 	mp.sendSignal(mp.Config.RestartSignal) //ask nicely to terminate
@@ -336,14 +426,29 @@ func (mp *master) triggerRestart() {
 func (mp *master) forkLoop() error {
 	//loop, restart command
 	for {
+<<<<<<< HEAD
 		if err := mp.fork(); err != nil {
 			return err
 		}
+=======
+		// 这是一个死循环，一般正常工作下有一个master进程和一个slave在执行，但是当进程重启时，会创建一个新的slave进程，这样子就会有两个slave进程在执行了, 等老进程所有请求都处理完释放连接后，父进程会关闭老进程，
+		// 正常情况下父进程会卡在这里，直到重启!!!
+		//
+		mp.debugf("fork begin")
+		if err := mp.fork(); err != nil {
+			return err
+		}
+		mp.debugf("fork finish")
+>>>>>>> develop
 	}
 }
 
 func (mp *master) fork() error {
+<<<<<<< HEAD
 	mp.debugf("starting %s", mp.binPath)
+=======
+	mp.debugf("fork new slave process, starting %s", mp.binPath)
+>>>>>>> develop
 	cmd := exec.Command(mp.binPath)
 	//mark this new process as the "active" slave process.
 	//this process is assumed to be holding the socket files.
@@ -364,8 +469,17 @@ func (mp *master) fork() error {
 	cmd.Stderr = os.Stderr
 	//include socket files
 	cmd.ExtraFiles = mp.slaveExtraFiles
+<<<<<<< HEAD
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("Failed to start slave process: %s", err)
+=======
+	//os/exec exec.Command(mp.binPath).Start() 返回一个 *exec.Cmd 对象，然后调用 cmd.Start() 启动进程，
+	//然后返回一个 err 值，如果 err 值不为 nil，则说明启动进程失败，否则说明启动进程成功，
+	//然后通过 cmd.Wait() 方法等待进程退出，然后返回一个 err 值，如果 err 值不为 nil，则说明进程退出失败，否则说明进程退出成功，
+	//然后通过 cmd.Process.Kill() 方法杀死进程，然后返回一个 err 值，如果 err 值不为 nil，则说明杀死进程失败，否则说明杀死进程成功，
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start slave process: %s", err)
+>>>>>>> develop
 	}
 	//was scheduled to restart, notify success
 	if mp.restarting {
@@ -374,6 +488,7 @@ func (mp *master) fork() error {
 		mp.restarted <- true
 	}
 	//convert wait into channel
+<<<<<<< HEAD
 	cmdwait := make(chan error)
 	go func() {
 		cmdwait <- cmd.Wait()
@@ -388,6 +503,23 @@ func (mp *master) fork() error {
 			code = 1
 			if exiterr, ok := err.(*exec.ExitError); ok {
 				if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+=======
+	cmdWait := make(chan error)
+	go func() {
+		cmdWait <- cmd.Wait()
+	}()
+	//wait....
+	select {
+	case err := <-cmdWait:
+		//program exited before releasing descriptors
+		//proxy exit code out to master
+		code := 0
+		if err != nil { // err 对应上面 cmd.Start() 的返回值
+			code = 1
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
+				if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
+>>>>>>> develop
 					code = status.ExitStatus()
 				}
 			}
@@ -407,6 +539,10 @@ func (mp *master) fork() error {
 		//to ensure downtime is kept at <1sec. The previous
 		//cmd.Wait() will still be consumed though the
 		//result will be discarded.
+<<<<<<< HEAD
+=======
+		mp.debugf("all connections released, slave process quit normally")
+>>>>>>> develop
 	}
 	return nil
 }

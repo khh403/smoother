@@ -29,3 +29,7 @@ example/docker
 .idea
 .DS_Store
 *.swp
+<<<<<<< HEAD
+=======
+log
+>>>>>>> develop
