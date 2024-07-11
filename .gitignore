@@ -20,3 +20,12 @@
 # Go workspace file
 go.work
 go.work.sum
+go.sum
+
+test_app*
+temp
+tmp
+example/docker
+.idea
+.DS_Store
+*.swp
