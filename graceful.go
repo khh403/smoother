@@ -13,10 +13,38 @@ import (
 	"time"
 )
 
+func NewCounter() *Counter {
+	return &Counter{}
+}
+
+type Counter struct {
+	insMutex sync.RWMutex
+	count    int
+}
+
+func (c *Counter) Add() {
+	c.insMutex.Lock()
+	c.count += 1
+	c.insMutex.Unlock()
+}
+
+func (c *Counter) Del() {
+	c.insMutex.Lock()
+	c.count -= 1
+	c.insMutex.Unlock()
+}
+
+func (c *Counter) Read() int {
+	c.insMutex.RLock()
+	return c.count
+	c.insMutex.RUnlock()
+}
+
 func newSmootherListener(l net.Listener) *smootherListener {
 	return &smootherListener{
 		Listener:     l,
 		closeByForce: make(chan bool),
+		counter:      NewCounter(),
 	}
 }
 
@@ -26,6 +54,7 @@ type smootherListener struct {
 	closeError   error
 	closeByForce chan bool
 	wg           sync.WaitGroup
+	counter      *Counter
 }
 
 func (l *smootherListener) Accept() (net.Conn, error) {
@@ -36,9 +65,10 @@ func (l *smootherListener) Accept() (net.Conn, error) {
 	conn.SetKeepAlive(true)                  // see http.tcpKeepAliveListener
 	conn.SetKeepAlivePeriod(3 * time.Minute) // see http.tcpKeepAliveListener
 	uconn := smootherConn{
-		Conn:   conn,
-		wg:     &l.wg,
-		closed: make(chan bool),
+		Conn:    conn,
+		wg:      &l.wg,
+		closed:  make(chan bool),
+		counter: l.counter,
 	}
 	go func() {
 		//connection watcher
@@ -50,6 +80,7 @@ func (l *smootherListener) Accept() (net.Conn, error) {
 		}
 	}()
 	l.wg.Add(1)
+	l.counter.Add()
 	return uconn, nil
 }
 
@@ -64,7 +95,7 @@ func (l *smootherListener) release(timeout time.Duration) {
 	}
 	go func() {
 		for {
-			l.debugf("open connections num: %d", getWaitGroupCount(&l.wg))
+			l.debugf("open connections num: %d", l.counter.Read())
 			time.Sleep(time.Second)
 		}
 	}()
@@ -104,14 +135,16 @@ func (l *smootherListener) File() *os.File {
 // notifying on close net.Conn
 type smootherConn struct {
 	net.Conn
-	wg     *sync.WaitGroup
-	closed chan bool
+	wg      *sync.WaitGroup
+	closed  chan bool
+	counter *Counter
 }
 
 func (o smootherConn) Close() error {
 	err := o.Conn.Close()
 	if err == nil {
 		o.wg.Done()
+		o.counter.Del()
 		o.closed <- true
 	}
 	o.debugf("connections closed")
