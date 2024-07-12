@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -61,6 +62,12 @@ func (l *smootherListener) release(timeout time.Duration) {
 	} else {
 		l.debugf("[2] close smootherListener.net.Listener success")
 	}
+	go func() {
+		for {
+			l.debugf("open connections num: %d", getWaitGroupCount(&l.wg))
+			time.Sleep(time.Second)
+		}
+	}()
 	//start timer, close by force if deadline not met
 	waited := make(chan bool)
 	go func() {
@@ -117,4 +124,10 @@ func (l *smootherListener) debugf(f string, args ...interface{}) {
 
 func (o *smootherConn) debugf(f string, args ...interface{}) {
 	log.Printf("[smoother slave] "+f, args...)
+}
+
+func getWaitGroupCount(wg *sync.WaitGroup) int {
+	state := reflect.ValueOf(wg).Elem().FieldByName("state")
+	count := state.FieldByName("1").Int() // "1" corresponds to the "counter" field inside state
+	return int(count)
 }
