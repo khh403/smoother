@@ -5,10 +5,7 @@ package smoother
 //have been closed
 
 import (
-<<<<<<< HEAD
-=======
 	"log"
->>>>>>> develop
 	"net"
 	"os"
 	"sync"
@@ -59,22 +56,16 @@ func (l *smootherListener) Accept() (net.Conn, error) {
 func (l *smootherListener) release(timeout time.Duration) {
 	//stop accepting connections - release fd
 	l.closeError = l.Listener.Close()
-<<<<<<< HEAD
-=======
 	if l.closeError != nil {
 		l.debugf("[2] close smootherListener.net.Listener failed, errmsg: %+v", l.closeError.Error())
 	} else {
 		l.debugf("[2] close smootherListener.net.Listener success")
 	}
->>>>>>> develop
 	//start timer, close by force if deadline not met
 	waited := make(chan bool)
 	go func() {
 		l.wg.Wait()
-<<<<<<< HEAD
-=======
 		l.debugf("listener's all connections closed!\n")
->>>>>>> develop
 		waited <- true
 	}()
 	go func() {
@@ -83,23 +74,16 @@ func (l *smootherListener) release(timeout time.Duration) {
 			close(l.closeByForce)
 		case <-waited:
 			//no need to force close
-<<<<<<< HEAD
-=======
 			l.debugf("no need to force close!\n")
->>>>>>> develop
 		}
 	}()
 }
 
 // blocking wait for close
 func (l *smootherListener) Close() error {
-<<<<<<< HEAD
-	l.wg.Wait()
-=======
 	l.debugf("[1] close net.Listener, and wait all connections close")
 	l.wg.Wait()
 	l.debugf("[5] close net.Listener, and all connections closed!!!!")
->>>>>>> develop
 	return l.closeError
 }
 
@@ -123,10 +107,6 @@ func (o smootherConn) Close() error {
 		o.wg.Done()
 		o.closed <- true
 	}
-<<<<<<< HEAD
-	return err
-}
-=======
 	o.debugf("connections closed")
 	return err
 }
@@ -138,4 +118,3 @@ func (l *smootherListener) debugf(f string, args ...interface{}) {
 func (o *smootherConn) debugf(f string, args ...interface{}) {
 	log.Printf("[smoother slave] "+f, args...)
 }
->>>>>>> develop

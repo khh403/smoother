@@ -1,8 +1,4 @@
 //go:build !windows
-<<<<<<< HEAD
-// +build !windows
-=======
->>>>>>> develop
 
 package smoother
 

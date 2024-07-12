@@ -116,10 +116,7 @@ func (sp *slave) watchSignal() {
 			//perform graceful shutdown
 			for _, l := range sp.listeners {
 				l.release(sp.Config.TerminateTimeout)
-<<<<<<< HEAD
-=======
 				sp.debugf("[3] currenet listener released! next to fork new slave process....")
->>>>>>> develop
 			}
 			//signal release of held sockets, allows master to start
 			//a new process before this child has actually exited.
@@ -128,10 +125,7 @@ func (sp *slave) watchSignal() {
 				sp.masterProc.Signal(SIGUSR1)
 			}
 			//listeners should be waiting on connections to close...
-<<<<<<< HEAD
-=======
 			sp.debugf("[4] currenet slave process keep running for all conns closed....")
->>>>>>> develop
 		}
 		//start death-timer
 		go func() {
