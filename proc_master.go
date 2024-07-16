@@ -23,20 +23,83 @@ import (
 
 var tmpBinPath = filepath.Join(os.TempDir(), "smoother-"+token()+extension())
 
+type SlaveCmd struct {
+	lock, pLock sync.Mutex
+	cmd         *exec.Cmd
+}
+
+func (c *SlaveCmd) Get() *exec.Cmd {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	return c.cmd
+}
+
+func (c *SlaveCmd) Set(cmd *exec.Cmd) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.cmd = cmd
+}
+
+type RestartingStatus struct {
+	l          sync.Mutex
+	restarting bool
+}
+
+func (c *RestartingStatus) Get() bool {
+	c.l.Lock()
+	defer c.l.Unlock()
+	return c.restarting
+}
+
+func (c *RestartingStatus) Set() {
+	c.l.Lock()
+	defer c.l.Unlock()
+	c.restarting = true
+}
+
+func (c *RestartingStatus) Reset() {
+	c.l.Lock()
+	defer c.l.Unlock()
+	c.restarting = false
+}
+
+type AwaitingUSR1 struct {
+	lock         sync.Mutex
+	awaitingUSR1 bool
+}
+
+func (c *AwaitingUSR1) Get() bool {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	return c.awaitingUSR1
+}
+
+func (c *AwaitingUSR1) Set() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.awaitingUSR1 = true
+}
+
+func (c *AwaitingUSR1) Reset() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.awaitingUSR1 = false
+}
+
 // a smoother master process
 type master struct {
 	*Config
 	slaveID             int
-	slaveCmd            *exec.Cmd
+	slaveCmd            SlaveCmd
 	slaveExtraFiles     []*os.File
 	binPath, tmpBinPath string
 	binPerms            os.FileMode
 	binHash             []byte
 	restartMux          sync.Mutex
-	restarting          bool
+	restarting          RestartingStatus // master 用来标记当前是否在重启中
 	restartedAt         time.Time
 	restarted           chan bool
-	awaitingUSR1        bool
+	awaitingUSR1        AwaitingUSR1
 	descriptorsReleased chan bool
 	signalledAt         time.Time
 	printCheckUpdate    bool
@@ -44,7 +107,7 @@ type master struct {
 
 // run 是主进程执行的方法，监听 USR2 信号，并一直在 fork loop 中死循环
 func (mp *master) run() error {
-	mp.debugf("process master run")
+	mp.debugf("process master run, pid: %d", os.Getpid())
 	if err := mp.checkBinary(); err != nil {
 		return err
 	}
@@ -120,6 +183,24 @@ func (mp *master) setupSignalling() {
 	signal.Notify(signals)
 	go func() {
 		for s := range signals {
+			switch s {
+			case syscall.SIGHUP:
+				mp.debugf("Received SIGHUP")
+			case syscall.SIGINT:
+				mp.debugf("Received SIGINT")
+			case syscall.SIGTERM:
+				mp.debugf("Received SIGTERM")
+			case syscall.SIGQUIT:
+				mp.debugf("Received SIGQUIT")
+			case syscall.SIGURG:
+				fmt.Println("Received SIGURG (urgent I/O condition)")
+			case syscall.SIGUSR1:
+				mp.debugf("Received SIGUSR1")
+			case syscall.SIGUSR2:
+				mp.debugf("Received SIGUSR2")
+			default:
+				mp.debugf("Received signal: %s\n", s.String())
+			}
 			mp.handleSignal(s)
 		}
 	}()
@@ -127,6 +208,7 @@ func (mp *master) setupSignalling() {
 
 func (mp *master) handleSignal(s os.Signal) {
 	if s == mp.RestartSignal {
+		mp.debugf("handleSingnal, get signal %s", s.String())
 		//user initiated manual restart
 		//这是用户手动给主进程发送的信号，一般默认为 USR2 信号，比如 kill -USR2 <master process id>
 		go mp.triggerRestart()
@@ -136,15 +218,15 @@ func (mp *master) handleSignal(s os.Signal) {
 	//**during a restart** a SIGUSR1 signals
 	//to the master process that, the file
 	//descriptors have been released
-	if mp.awaitingUSR1 && s == SIGUSR1 {
+	if mp.awaitingUSR1.Get() && s == SIGUSR1 {
 		mp.debugf("SIGUSR1 signaled, sockets ready")
-		mp.awaitingUSR1 = false
+		mp.awaitingUSR1.Reset()
 		mp.descriptorsReleased <- true
 	} else
 	//while the slave process is running, proxy
 	//all signals through
-	if mp.slaveCmd != nil && mp.slaveCmd.Process != nil {
-		//mp.debugf("proxy signal (%s)", s)
+	if mp.slaveCmd.Get() != nil && mp.slaveCmd.Get().Process != nil {
+		mp.debugf("proxy signal (%s)", s)
 		mp.sendSignal(s)
 	} else
 	//otherwise if not running, kill on CTRL+c
@@ -157,11 +239,13 @@ func (mp *master) handleSignal(s os.Signal) {
 }
 
 func (mp *master) sendSignal(s os.Signal) {
-	if mp.slaveCmd != nil && mp.slaveCmd.Process != nil {
-		if err := mp.slaveCmd.Process.Signal(s); err != nil {
+	if mp.slaveCmd.Get() != nil && mp.slaveCmd.Get().Process != nil {
+		if err := mp.slaveCmd.Get().Process.Signal(s); err != nil {
 			mp.debugf("signal failed (%s), assuming slave process died unexpectedly", err)
 			os.Exit(1)
 		}
+	} else {
+		mp.debugf("signal discarded (%s), no slave process, send signal skipped!!!", s.String())
 	}
 }
 
@@ -207,7 +291,7 @@ func (mp *master) fetchLoop() {
 }
 
 func (mp *master) fetch() {
-	if mp.restarting {
+	if mp.restarting.Get() {
 		return //skip if restarting
 	}
 	if mp.printCheckUpdate {
@@ -320,22 +404,28 @@ func (mp *master) fetch() {
 }
 
 func (mp *master) triggerRestart() {
+	mp.debugf("receive signal SIGUSR2, and trigger restart prog")
 	// 父进程响应用户 kill -USR2 重启信号
-	if mp.restarting {
+	if mp.restarting.Get() {
 		// 如果已经完成重启动作，name就忽略
-		mp.debugf("already graceful restarting")
+		mp.debugf("mp.restarting: %+v, already graceful restarting, skip", mp.restarting.Get())
 		return //skip
-	} else if mp.slaveCmd == nil || mp.restarting {
-		mp.debugf("no slave process")
+		//} else if mp.slaveCmd.Get() == nil || mp.restarting.Get() {
+	} else if mp.slaveCmd.Get() == nil {
+		mp.debugf("no slave process, skip")
 		return //skip
 	}
 
-	mp.debugf("graceful restart triggered")
-	mp.restarting = true
-	// master 主进程执行 restart 动作后要等待子进程会发的 USR1 信号!!!
-	mp.awaitingUSR1 = true
+	mp.restarting.Set()
+	mp.debugf("because graceful restart triggered, so mp.restarting updated to true, indicate restarting...")
+
+	// when master hit signal SIGUSR2，set mp.awaitingUSR1 to true
+	mp.awaitingUSR1.Set()
+	mp.debugf("because graceful restart triggered, so mp.awaitingUSR1 updated to true, waiting for SIGUSR1...")
 	mp.signalledAt = time.Now()
 	mp.sendSignal(mp.Config.RestartSignal) //ask nicely to terminate
+	mp.debugf("because graceful restart triggered, so master send SIGUSR2 to current slave process")
+
 	select {
 	case <-mp.restarted:
 		//success
@@ -367,7 +457,6 @@ func (mp *master) fork() error {
 	cmd := exec.Command(mp.binPath)
 	//mark this new process as the "active" slave process.
 	//this process is assumed to be holding the socket files.
-	mp.slaveCmd = cmd
 	mp.slaveID++
 	//provide the slave process with some state
 	e := os.Environ()
@@ -391,11 +480,20 @@ func (mp *master) fork() error {
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start slave process: %s", err)
 	}
+	mp.slaveCmd.Set(cmd)
+	if mp.slaveCmd.Get().Process == nil {
+		err := fmt.Errorf("failed to start slave process: slave process command start failed")
+		mp.debugf(err.Error())
+		return err
+	}
 	//was scheduled to restart, notify success
-	if mp.restarting {
+	if mp.restarting.Get() {
 		mp.restartedAt = time.Now()
-		mp.restarting = false
+		mp.debugf("get mp.restarting status after hit SIGUSR2: %+v", mp.restarting.Get())
 		mp.restarted <- true
+		mp.debugf("set mp.restarted after hit SIGUSR2: %+v", mp.restarting.Get())
+		mp.restarting.Reset()
+		mp.debugf("reset mp.restarting status after hit SIGUSR2: %+v", mp.restarting.Get())
 	}
 	//convert wait into channel
 	cmdWait := make(chan error)
@@ -421,7 +519,7 @@ func (mp *master) fork() error {
 		//if a restarts are disabled or if it was an
 		//unexpected crash, proxy this exit straight
 		//through to the main process
-		if mp.NoRestart || !mp.restarting {
+		if mp.NoRestart || !mp.restarting.Get() {
 			os.Exit(code)
 		}
 	case <-mp.descriptorsReleased:

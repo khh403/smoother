@@ -73,7 +73,7 @@ func (sp *slave) run() error {
 	}
 	sp.watchSignal()
 	//run program with state
-	sp.debugf("start program")
+	sp.debugf("start program, pid: %d, ppid: %d", os.Getpid(), os.Getppid())
 	sp.Config.Program(sp.state)
 	return nil
 }

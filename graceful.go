@@ -24,19 +24,19 @@ type Counter struct {
 
 func (c *Counter) Add() {
 	c.insMutex.Lock()
+	defer c.insMutex.Unlock()
 	c.count += 1
-	c.insMutex.Unlock()
 }
 
 func (c *Counter) Del() {
 	c.insMutex.Lock()
+	defer c.insMutex.Unlock()
 	c.count -= 1
-	c.insMutex.Unlock()
 }
 
 func (c *Counter) Read() int {
-	c.insMutex.RLock()
-	defer c.insMutex.RUnlock()
+	c.insMutex.Lock()
+	defer c.insMutex.Unlock()
 	return c.count
 }
 
@@ -48,13 +48,30 @@ func newSmootherListener(l net.Listener) *smootherListener {
 	}
 }
 
+type CloseError struct {
+	l   sync.Mutex
+	err error
+}
+
 // gracefully closing net.Listener
 type smootherListener struct {
 	net.Listener
-	closeError   error
+	closeError   CloseError
 	closeByForce chan bool
 	wg           sync.WaitGroup
 	counter      *Counter
+}
+
+func (t *CloseError) Set(err error) {
+	t.l.Lock()
+	defer t.l.Unlock()
+	t.err = err
+}
+
+func (t *CloseError) Get() error {
+	t.l.Lock()
+	defer t.l.Unlock()
+	return t.err
 }
 
 func (l *smootherListener) Accept() (net.Conn, error) {
@@ -87,9 +104,9 @@ func (l *smootherListener) Accept() (net.Conn, error) {
 // non-blocking trigger close
 func (l *smootherListener) release(timeout time.Duration) {
 	//stop accepting connections - release fd
-	l.closeError = l.Listener.Close()
-	if l.closeError != nil {
-		l.debugf("[2] close smootherListener.net.Listener failed, errmsg: %+v", l.closeError.Error())
+	l.closeError.Set(l.Listener.Close())
+	if l.closeError.Get() != nil {
+		l.debugf("[2] close smootherListener.net.Listener failed, errmsg: %+v", l.closeError.Get().Error())
 	} else {
 		l.debugf("[2] close smootherListener.net.Listener success")
 	}
@@ -122,7 +139,7 @@ func (l *smootherListener) Close() error {
 	l.debugf("[1] close net.Listener, and wait all connections close")
 	l.wg.Wait()
 	l.debugf("[5] close net.Listener, and all connections closed!!!!")
-	return l.closeError
+	return l.closeError.Get()
 }
 
 func (l *smootherListener) File() *os.File {
