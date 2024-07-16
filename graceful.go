@@ -36,8 +36,8 @@ func (c *Counter) Del() {
 
 func (c *Counter) Read() int {
 	c.insMutex.RLock()
+	defer c.insMutex.RUnlock()
 	return c.count
-	c.insMutex.RUnlock()
 }
 
 func newSmootherListener(l net.Listener) *smootherListener {

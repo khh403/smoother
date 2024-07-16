@@ -1,0 +1,275 @@
+==================
+WARNING: DATA RACE
+Read at 0x00c0006cb120 by goroutine 248:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:328 +0x6a
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Previous write at 0x00c0006cb120 by main goroutine:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:370 +0x111
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+2024-07-12 21:27:19.209757 I | [smoother master] graceful restart triggered
+==================
+WARNING: DATA RACE
+Write at 0x00c0006cb188 by goroutine 248:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:334 +0xe4
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Previous read at 0x00c0006cb188 by main goroutine:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:395 +0xc64
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c000003720 by goroutine 248:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).sendSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:160 +0x84
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:338 +0x1d0
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Previous write at 0x00c000003720 by main goroutine:
+  os/exec.Command()
+      /usr/local/go/src/os/exec/exec.go:381 +0x145
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:367 +0xf5
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c000524b70 by goroutine 248:
+  os.(*Process).signal()
+      /usr/local/go/src/os/exec_unix.go:61 +0x53
+  os.(*Process).Signal()
+      /usr/local/go/src/os/exec.go:140 +0xf1
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).sendSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:161 +0x97
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:338 +0x1d0
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Previous write at 0x00c000524b70 by main goroutine:
+  os.newProcess()
+      /usr/local/go/src/os/exec.go:29 +0x729
+  os.startProcess()
+      /usr/local/go/src/os/exec_posix.go:63 +0x78f
+  os.StartProcess()
+      /usr/local/go/src/os/exec.go:111 +0x71
+  os/exec.(*Cmd).Start()
+      /usr/local/go/src/os/exec/exec.go:704 +0xb2b
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:391 +0xb5e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c000524b80 by goroutine 248:
+  sync/atomic.LoadInt32()
+      /usr/local/go/src/runtime/race_amd64.s:202 +0xb
+  sync/atomic.LoadUint32()
+      <autogenerated>:1 +0x10
+  os.(*Process).done()
+      /usr/local/go/src/os/exec.go:39 +0x230
+  os.(*Process).signal()
+      /usr/local/go/src/os/exec_unix.go:69 +0x233
+  os.(*Process).Signal()
+      /usr/local/go/src/os/exec.go:140 +0xf1
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).sendSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:161 +0x97
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:338 +0x1d0
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Previous write at 0x00c000524b80 by main goroutine:
+  os.newProcess()
+      /usr/local/go/src/os/exec.go:29 +0x729
+  os.startProcess()
+      /usr/local/go/src/os/exec_posix.go:63 +0x78f
+  os.StartProcess()
+      /usr/local/go/src/os/exec.go:111 +0x71
+  os/exec.(*Cmd).Start()
+      /usr/local/go/src/os/exec/exec.go:704 +0xb2b
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:391 +0xb5e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+2024-07-12 21:27:19.210720 I | [smoother slave#1] graceful shutdown requested
+2024-07-12 21:27:19.210840 I | [smoother slave] [1] close net.Listener, and wait all connections close
+==================
+WARNING: DATA RACE
+Read at 0x00c0006cb1b0 by goroutine 112:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:139 +0xed
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+
+Previous write at 0x00c0006cb1b0 by goroutine 248:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:336 +0x104
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Goroutine 112 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:121 +0x1b0
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:58 +0x1e5
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+2024-07-12 21:27:19.210881 I | [smoother slave] [2] close smootherListener.net.Listener success
+2024-07-12 21:27:19.210958 I | [smoother slave#1] [3] currenet listener released! next to fork new slave process....
+2024-07-12 21:27:19.210947 I | [smoother master] SIGUSR1 signaled, sockets ready
+2024-07-12 21:27:19.210994 I | [smoother slave#1] [4] currenet slave process keep running for all conns closed....
+2024-07-12 21:27:19.211023 I | [smoother master] all connections released, slave process quit normally
+2024-07-12 21:27:19.211051 I | [smoother master] fork finish
+2024-07-12 21:27:19.211024 I | [smoother slave] open connections num: 1
+2024-07-12 21:27:19.211095 I | [smoother master] fork begin
+2024-07-12 21:27:19.211130 I | [smoother master] fork new slave process, starting /home/xiaoju/net_dev/server_test/api-server-cloud/api-server
+==================
+WARNING: DATA RACE
+Write at 0x00c0006cb120 by main goroutine:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).fork()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:370 +0x111
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).forkLoop()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:358 +0x6e
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:72 +0x3d7
+  git.xiaojukeji.com/net_dev/server/smoother.runErr()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:177 +0x278
+  git.xiaojukeji.com/net_dev/server/smoother.Run()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/smoother.go:114 +0xb7
+  main.main()
+      /root/go/src/net-api-server-rate-pressure-test/main.go:51 +0x5d7
+
+Previous read at 0x00c0006cb120 by goroutine 248:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).sendSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:160 +0x48
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).triggerRestart()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:338 +0x1d0
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal.gowrap1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x33
+
+Goroutine 248 (running) created at:
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).handleSignal()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:132 +0x3cb
+  git.xiaojukeji.com/net_dev/server/smoother.(*master).setupSignalling.func1()
+      /root/go/src/net-api-server-rate-pressure-test/smoother/proc_master.go:123 +0x4b
+==================
+2024-07-12 21:27:19.211504 I | [smoother master] restart success
+2024-07-12 21:27:19.267813 I | [smoother slave#2] run
+2024-07-12 21:27:19.268001 I | [smoother slave#2] start program
+time="2024-07-12T21:27:19+08:00" level=info msg="start http server in child process[pid:2365138]"
+time="2024-07-12T21:27:19+08:00" level=info msg="connected to mysql with address: didi_1Slg:UVyTAAQOb@tcp(10.78.133.3:9377)/user_test?charset=utf8&parseTime=true&loc=Local, maxIdleConns: 500, maxOpenConns: 2000, maxLifeTime: 3600, gormLog: true"
+time="2024-07-12T21:27:19+08:00" level=info msg="init db success"
+time="2024-07-12T21:27:19+08:00" level=info msg="etcdclient.ActiveConnection().GetState().String: READY\n"
+{"dltag":"_com_request_in","host":"node03.didiglobal.com","level":"info","msg":"node : []db.DBNodeSpec{db.DBNodeSpec{BaseModelV2:db.BaseModelV2{ID:0x5a1, UUID:\"b08ef670-dd75-4e64-97aa-d1716a633f80\", Description:\"\", CreatedAt:time.Date(2024, time.July, 4, 15, 58, 27, 0, time.Local), UpdatedAt:time.Date(2024, time.July, 11, 18, 55, 14, 0, time.Local), DeletedAt:0x0}, LDC:\"NMG-BIGDATA\", APIVersion:\"\", Name:\"node02.didiglobal.com\", GenerateName:\"\", Namespace:\"\", ResourceVersion:\"76061929\", Generation:0, Finalizers:\"null\", ClusterName:\"NMG-BIGDATA\", ProviderID:\"\", Taints:\"[\\\"node.kubernetes.io/not-ready:NoSchedule\\\"]\", Annotations:\"{\\\"flannel.alpha.coreos.com/backend-data\\\":\\\"{\\\\\\\"VNI\\\\\\\":1,\\\\\\\"VtepMAC\\\\\\\":\\\\\\\"22:1e:5d:ab:49:d2\\\\\\\"}\\\",\\\"flannel.alpha.coreos.com/backend-type\\\":\\\"vxlan\\\",\\\"flannel.alpha.coreos.com/kube-subnet-manager\\\":\\\"true\\\",\\\"flannel.alpha.coreos.com/public-ip\\\":\\\"172.16.133.56\\\",\\\"kubeadm.alpha.kubernetes.io/cri-socket\\\":\\\"/var/run/dockershim.sock\\\",\\\"net.didichuxing.com/eni_infos\\\":\\\"{}\\\",\\\"node.alpha.kubernetes.io/ttl\\\":\\\"0\\\",\\\"volumes.kubernetes.io/controller-managed-attach-detach\\\":\\\"true\\\"}\", Capacity:\"{\\\"cpu\\\":\\\"24\\\",\\\"ephemeral-storage\\\":\\\"51175Mi\\\",\\\"hugepages-1Gi\\\":\\\"192Gi\\\",\\\"memory\\\":\\\"263528880Ki\\\",\\\"pods\\\":\\\"110\\\"}\", Allocatable:\"{\\\"cpu\\\":\\\"24\\\",\\\"ephemeral-storage\\\":\\\"48294789041\\\",\\\"hugepages-1Gi\\\":\\\"192Gi\\\",\\\"memory\\\":\\\"62099888Ki\\\",\\\"pods\\\":\\\"110\\\"}\", Phase:\"\", Addresses:\"172.16.133.56\", NodeSystemInfo:\"{\\\"machineID\\\":\\\"336e99ccaa8b4c738212eb6a1b078f1d\\\",\\\"systemUUID\\\":\\\"b24a1d79-90f7-04b7-e611-b8cf02fe87a7\\\",\\\"bootID\\\":\\\"0aef77f5-b565-4bfc-9ab0-9cb21033c2d4\\\",\\\"kernelVersion\\\":\\\"4.18.0-193.el8.x86_64\\\",\\\"osImage\\\":\\\"CentOS Linux 8 (Core)\\\",\\\"containerRuntimeVersion\\\":\\\"docker://19.3.15\\\",\\\"kubeletVersion\\\":\\\"v1.20.12\\\",\\\"kubeProxyVersion\\\":\\\"v1.20.12\\\",\\\"operatingSystem\\\":\\\"linux\\\",\\\"architecture\\\":\\\"amd64\\\"}\", ConfigSource:\"\", ConfigSourceStatus:\"null\", PodCIDRs:[]db.DBPodCidr{db.DBPodCidr{BaseModel:db.BaseModel{ID:0xe3373, UUID:\"33741450921a409da626a60baa5abe70\", Description:\"\", CreatedAt:time.Date(2024, time.July, 5, 16, 59, 31, 0, time.Local), UpdatedAt:time.Date(2024, time.July, 5, 16, 59, 31, 0, time.Local)}, NodeUUID:\"b08ef670-dd75-4e64-97aa-d1716a633f80\", LDC:\"NMG-BIGDATA\", IP:0xc0a86504, Mask:0xffffff00}, db.DBPodCidr{BaseModel:db.BaseModel{ID:0xe3377, UUID:\"da1175d456f54a7ea373788ca397cd76\", Description:\"\", CreatedAt:time.Date(2024, time.July, 5, 16, 59, 36, 0, time.Local), UpdatedAt:time.Date(2024, time.July, 5, 16, 59, 36, 0, time.Local)}, NodeUUID:\"b08ef670-dd75-4e64-97aa-d1716a633f80\", LDC:\"NMG-BIGDATA\", IP:0xc0a86509, Mask:0xffffff00}, db.DBPodCidr{BaseModel:db.BaseModel{ID:0xe3379, UUID:\"cba76ab9fc4b40efaa06b320fb20ff9d\", Description:\"\", CreatedAt:time.Date(2024, time.July, 5, 16, 59, 36, 0, time.Local), UpdatedAt:time.Date(2024, time.July, 5, 16, 59, 36, 0, time.Local)}, NodeUUID:\"b08ef670-dd75-4e64-97aa-d1716a633f80\", LDC:\"NMG-BIGDATA\", IP:0xc0a8650b, Mask:0xffffff00}}}}","service":"NET-API-Server","spanid":"edcd0d45225843eb89ed7757ca233dec","time":"2024-07-12 21:27:20.046","traceid":"d7a95cd9413446d1b243a08a7f05c020"}
+{"bytes_in":"","bytes_out":"1843","caller":"172.16.133.56","dltag":"_com_request_in","headers":"{\"Accept-Encoding\":[\"gzip\"],\"Authorization\":[\"Basic bmV0X2RldjpuZXRfZGV2X3Bhc3N3b3Jk\"],\"Content-Type\":[\"application/json\"],\"Didi-Header-Rid\":[\"d7a95cd9413446d1b243a08a7f05c020\"],\"User-Agent\":[\"Go-http-client/1.1\"]}","host":"node03.didiglobal.com","latency":"47.929146ms","level":"info","method":"GET","msg":"","path":"/cloudServer/logical_dcs/NMG-BIGDATA/node_specs/b08ef670-dd75-4e64-97aa-d1716a633f80","protocol":"HTTP/1.1","recvtime":"2024-07-12 21:27:20.001","service":"NET-API-Server","spanid":"edcd0d45225843eb89ed7757ca233dec","status":200,"time":"2024-07-12 21:27:20.049","traceid":"d7a95cd9413446d1b243a08a7f05c020","uri":"/cloudServer/logical_dcs/NMG-BIGDATA/node_specs/b08ef670-dd75-4e64-97aa-d1716a633f80","useragent":"Go-http-client/1.1"}
+2024-07-12 21:27:20.211795 I | [smoother slave] open connections num: 1
+2024-07-12 21:27:21.212694 I | [smoother slave] open connections num: 1
+{"level":"info","msg":"GetMQ: res receiver have started","time":"2024-07-12 21:27:21.293"}
+[kafka] 2024/07/12 21:27:21 ClientID is the default of 'sarama', you should consider setting it to something application-specific.
+[kafka] 2024/07/12 21:27:21 Deprecation warning: Consumer.Offsets.CommitInterval exists for historical compatibility and should not be used. Please use Consumer.Offsets.AutoCommit, the current value will be ignored
+[kafka] 2024/07/12 21:27:21 Initializing new client
+[kafka] 2024/07/12 21:27:21 ClientID is the default of 'sarama', you should consider setting it to something application-specific.
+[kafka] 2024/07/12 21:27:21 Deprecation warning: Consumer.Offsets.CommitInterval exists for historical compatibility and should not be used. Please use Consumer.Offsets.AutoCommit, the current value will be ignored
+[kafka] 2024/07/12 21:27:21 Successfully initialized new client
+[kafka] 2024/07/12 21:27:21 ClientID is the default of 'sarama', you should consider setting it to something application-specific.
+[kafka] 2024/07/12 21:27:21 Deprecation warning: Consumer.Offsets.CommitInterval exists for historical compatibility and should not be used. Please use Consumer.Offsets.AutoCommit, the current value will be ignored
+[kafka] 2024/07/12 21:27:21 client/coordinator requesting coordinator for consumergroup cg-api-server-test-rs-0001_node03.didiglobal.com from 10.89.154.53:8093
+======[smoother] state.Listener: [::]:8821
+======[smoother] listener expect echo used: &{Listener:0xc0001c5b80 closeError:<nil> closeByForce:0xc000200960 wg:{noCopy:{} state:{_:{} _:{} v:0} sema:0} counter:0xc0003ff940}
